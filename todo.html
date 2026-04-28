@@ -754,9 +754,10 @@
         </select>
       </div>
       <div class="deadline-row">
-        <label for="task-deadline-input" class="diff-label" style="cursor:pointer;">期限：</label>
-        <input type="date" id="task-deadline-input" class="deadline-input" style="font-size:16px;min-height:44px;min-width:150px;" onfocus="setTimeout(()=>{try{this.showPicker()}catch(e){}},80)">
-        <button onclick="document.getElementById('task-deadline-input').value=''" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:.8rem;" title="クリア">✕</button>
+        <span class="diff-label">期限：</span>
+        <button type="button" class="deadline-input" onclick="openTaskDeadlinePicker()" id="task-deadline-btn" style="min-height:36px;background:#fff;text-align:left;cursor:pointer;border:1.5px solid #d1d5db;border-radius:9px;padding:5px 10px;font-size:.76rem;color:#555;">📅 <span id="task-deadline-display">なし</span></button>
+        <input type="date" id="task-deadline-input" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;">
+        <button onclick="clearTaskDeadline()" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:.8rem;" title="クリア">✕</button>
       </div>
       <div class="tag-row">
         <span class="diff-label">タグ：</span>
@@ -1670,6 +1671,7 @@ function addTodayTask() {
   input.value='';
   document.getElementById('repeat-select').value='none';
   document.getElementById('task-deadline-input').value='';
+  document.getElementById('task-deadline-display').textContent='なし';
   // タグ選択リセット
   _selectedTags=[];
   document.querySelectorAll('.tag-preset-chip').forEach(b=>b.classList.remove('active'));
@@ -1677,6 +1679,26 @@ function addTodayTask() {
   renderList(); updateIdle();
 }
 document.getElementById('todo-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTodayTask();});
+
+function openTaskDeadlinePicker() {
+  const real = document.getElementById('task-deadline-input');
+  const tmp = document.createElement('input');
+  tmp.type = 'date';
+  tmp.value = real.value;
+  tmp.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.01;z-index:9999;font-size:16px;border:none;background:transparent;';
+  document.body.appendChild(tmp);
+  tmp.focus();
+  tmp.addEventListener('change', () => {
+    real.value = tmp.value;
+    document.getElementById('task-deadline-display').textContent = tmp.value ? formatDeadline(tmp.value).trim() : 'なし';
+    tmp.remove();
+  });
+  tmp.addEventListener('blur', () => setTimeout(() => { if(document.body.contains(tmp)) tmp.remove(); }, 300));
+}
+function clearTaskDeadline() {
+  document.getElementById('task-deadline-input').value = '';
+  document.getElementById('task-deadline-display').textContent = 'なし';
+}
 
 // ===== ドロップゾーン設定（PC用） =====
 (()=>{
