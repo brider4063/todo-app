@@ -3523,7 +3523,7 @@ const THEME_DEFS = [
 
   // ===== PWA: Service Worker 登録 =====
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/todo-app/sw.js?v=3').then(reg => {
+    navigator.serviceWorker.register('/todo-app/sw.js?v=6').then(reg => {
       reg.update(); // 常に最新版を確認
     }).catch(() => {});
   }
