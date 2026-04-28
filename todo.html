@@ -677,7 +677,18 @@
   </style>
 </head>
 <body>
-<input type="date" id="hidden-deadline-picker" style="position:fixed;opacity:0;pointer-events:none;top:0;left:0;" onchange="applyDeadlinePicker()">
+<!-- 期限選択モーダル -->
+<div id="deadline-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:22px 20px;width:88%;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.18);">
+    <div style="font-size:.95rem;font-weight:700;color:#4c1d95;margin-bottom:14px;">📅 期限を選ぶ</div>
+    <input type="date" id="deadline-modal-input" style="width:100%;font-size:16px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:9px;margin-bottom:16px;">
+    <div style="display:flex;gap:8px;">
+      <button onclick="applyDeadlineModal()" style="flex:1;background:#7c3aed;color:#fff;border:none;border-radius:9px;padding:10px;font-size:.88rem;font-weight:700;cursor:pointer;">決定</button>
+      <button onclick="clearDeadlineModal()" style="flex:1;background:#f3f4f6;color:#555;border:none;border-radius:9px;padding:10px;font-size:.88rem;cursor:pointer;">クリア</button>
+      <button onclick="closeDeadlineModal()" style="flex:1;background:#f3f4f6;color:#555;border:none;border-radius:9px;padding:10px;font-size:.88rem;cursor:pointer;">キャンセル</button>
+    </div>
+  </div>
+</div>
 
 <!-- キャラパネル -->
 <div class="char-panel">
@@ -1821,27 +1832,30 @@ let _dlPickerId = null, _dlPickerDate = null;
 function openDeadlinePicker(taskId, dateStr) {
   _dlPickerId = taskId; _dlPickerDate = dateStr;
   const task = getTasksForDate(dateStr).find(t => t.id === taskId);
-  const tmp = document.createElement('input');
-  tmp.type = 'date';
-  tmp.value = task?.deadline ?? '';
-  tmp.style.cssText = 'position:fixed;top:-9999px;left:0;width:1px;height:1px;opacity:1;font-size:16px;border:none;';
-  document.body.appendChild(tmp);
-  tmp.focus();
-  tmp.addEventListener('change', () => {
-    const val = tmp.value;
-    const tasks = getTasksForDate(_dlPickerDate);
-    const t = tasks.find(t => t.id === _dlPickerId);
-    if (t) {
-      if (val) t.deadline = val; else delete t.deadline;
-      saveTasksForDate(_dlPickerDate, tasks);
-      renderList();
-      if (val) showToast(`期限を ${formatDeadline(val).trim()} に設定しました`);
-      else showToast('期限を削除しました');
-    }
-    _dlPickerId = null; _dlPickerDate = null;
-    tmp.remove();
-  });
-  tmp.addEventListener('blur', () => setTimeout(() => { if(document.body.contains(tmp)) tmp.remove(); }, 300));
+  document.getElementById('deadline-modal-input').value = task?.deadline ?? '';
+  const modal = document.getElementById('deadline-modal');
+  modal.style.display = 'flex';
+}
+function applyDeadlineModal() {
+  const val = document.getElementById('deadline-modal-input').value;
+  const tasks = getTasksForDate(_dlPickerDate);
+  const t = tasks.find(t => t.id === _dlPickerId);
+  if (t) {
+    if (val) t.deadline = val; else delete t.deadline;
+    saveTasksForDate(_dlPickerDate, tasks);
+    renderList();
+    if (val) showToast(`期限を ${formatDeadline(val).trim()} に設定しました`);
+    else showToast('期限を削除しました');
+  }
+  closeDeadlineModal();
+}
+function clearDeadlineModal() {
+  document.getElementById('deadline-modal-input').value = '';
+  applyDeadlineModal();
+}
+function closeDeadlineModal() {
+  document.getElementById('deadline-modal').style.display = 'none';
+  _dlPickerId = null; _dlPickerDate = null;
 }
 
 // ===== タスク並び替え =====
