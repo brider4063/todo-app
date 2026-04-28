@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="やること" />
-  <link rel="apple-touch-icon" href="icon-512.png?v=2" />
+  <link rel="apple-touch-icon" href="icon-512.png" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background: #f5f3ff; color: #333; min-height: 100vh; padding-bottom: 80px; }
@@ -755,7 +755,7 @@
       </div>
       <div class="deadline-row">
         <span class="diff-label">期限：</span>
-        <input type="date" id="task-deadline-input" class="deadline-input">
+        <input type="date" id="task-deadline-input" class="deadline-input" onclick="try{this.showPicker()}catch(e){}"  style="font-size:16px;">
         <button onclick="document.getElementById('task-deadline-input').value=''" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:.8rem;" title="クリア">✕</button>
       </div>
       <div class="tag-row">
