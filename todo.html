@@ -1820,23 +1820,28 @@ function formatDeadline(dl) {
 let _dlPickerId = null, _dlPickerDate = null;
 function openDeadlinePicker(taskId, dateStr) {
   _dlPickerId = taskId; _dlPickerDate = dateStr;
-  const picker = document.getElementById('hidden-deadline-picker');
   const task = getTasksForDate(dateStr).find(t => t.id === taskId);
-  picker.value = task?.deadline ?? '';
-  picker.showPicker ? picker.showPicker() : picker.click();
-}
-function applyDeadlinePicker() {
-  if (!_dlPickerId) return;
-  const val = document.getElementById('hidden-deadline-picker').value;
-  const tasks = getTasksForDate(_dlPickerDate);
-  const task = tasks.find(t => t.id === _dlPickerId);
-  if (!task) return;
-  if (val) task.deadline = val; else delete task.deadline;
-  saveTasksForDate(_dlPickerDate, tasks);
-  renderList();
-  if (val) showToast(`期限を ${formatDeadline(val).trim()} に設定しました`);
-  else showToast('期限を削除しました');
-  _dlPickerId = null; _dlPickerDate = null;
+  const tmp = document.createElement('input');
+  tmp.type = 'date';
+  tmp.value = task?.deadline ?? '';
+  tmp.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.01;z-index:9999;font-size:16px;border:none;background:transparent;';
+  document.body.appendChild(tmp);
+  tmp.focus();
+  tmp.addEventListener('change', () => {
+    const val = tmp.value;
+    const tasks = getTasksForDate(_dlPickerDate);
+    const t = tasks.find(t => t.id === _dlPickerId);
+    if (t) {
+      if (val) t.deadline = val; else delete t.deadline;
+      saveTasksForDate(_dlPickerDate, tasks);
+      renderList();
+      if (val) showToast(`期限を ${formatDeadline(val).trim()} に設定しました`);
+      else showToast('期限を削除しました');
+    }
+    _dlPickerId = null; _dlPickerDate = null;
+    tmp.remove();
+  });
+  tmp.addEventListener('blur', () => setTimeout(() => { if(document.body.contains(tmp)) tmp.remove(); }, 300));
 }
 
 // ===== タスク並び替え =====
