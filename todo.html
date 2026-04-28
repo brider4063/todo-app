@@ -755,7 +755,7 @@
       </div>
       <div class="deadline-row">
         <label for="task-deadline-input" class="diff-label" style="cursor:pointer;">期限：</label>
-        <input type="date" id="task-deadline-input" class="deadline-input" style="font-size:16px;min-height:32px;">
+        <input type="date" id="task-deadline-input" class="deadline-input" style="font-size:16px;min-height:44px;min-width:150px;" onfocus="setTimeout(()=>{try{this.showPicker()}catch(e){}},80)">
         <button onclick="document.getElementById('task-deadline-input').value=''" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:.8rem;" title="クリア">✕</button>
       </div>
       <div class="tag-row">
