@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>バナー生成</title>
+  <style>
+    body { background: #1a1625; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; font-family: 'Hiragino Sans', 'Meiryo', sans-serif; }
+    canvas { border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+    button { margin-top: 24px; background: #7c3aed; color: #fff; border: none; padding: 12px 32px; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    button:hover { background: #6d28d9; }
+  </style>
+</head>
+<body>
+<canvas id="c" width="1024" height="500"></canvas>
+<button onclick="download()">📥 PNG でダウンロード</button>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+const W = 1024, H = 500;
+
+function draw() {
+  // 背景グラデーション
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0,   '#4c1d95');
+  bg.addColorStop(0.5, '#7c3aed');
+  bg.addColorStop(1,   '#c084fc');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 装飾丸（左上）
+  ctx.beginPath();
+  ctx.arc(-60, -60, 200, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,.06)';
+  ctx.fill();
+
+  // 装飾丸（右下）
+  ctx.beginPath();
+  ctx.arc(W + 80, H + 80, 260, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,.06)';
+  ctx.fill();
+
+  // 装飾丸（右上小）
+  ctx.beginPath();
+  ctx.arc(W - 100, 80, 90, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,.08)';
+  ctx.fill();
+
+  // キャラ画像
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = 'https://brider4063.github.io/todo-app/face5.png';
+  img.onload = () => {
+    // 右側に円形クリップで表示
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(W - 180, H / 2, 170, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(img, W - 360, H / 2 - 180, 360, 360);
+    ctx.restore();
+
+    // キャラ周りの光輪
+    const glow = ctx.createRadialGradient(W - 180, H / 2, 140, W - 180, H / 2, 220);
+    glow.addColorStop(0, 'rgba(192,132,252,.0)');
+    glow.addColorStop(1, 'rgba(192,132,252,.25)');
+    ctx.beginPath();
+    ctx.arc(W - 180, H / 2, 220, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    drawText();
+  };
+  img.onerror = () => { drawText(); };
+}
+
+function drawText() {
+  // アプリ名
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 72px "Hiragino Sans", "Meiryo", sans-serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('やることリスト', 60, 190);
+
+  // タグライン
+  ctx.fillStyle = 'rgba(255,255,255,.88)';
+  ctx.font = '36px "Hiragino Sans", "Meiryo", sans-serif';
+  ctx.fillText('アイちゃんと毎日コツコツ🎀', 64, 280);
+
+  // バッジ
+  ctx.fillStyle = 'rgba(255,255,255,.18)';
+  roundRect(ctx, 60, 330, 220, 44, 22);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 20px "Hiragino Sans", "Meiryo", sans-serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✨ 無料で使える', 76, 352);
+}
+
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.lineTo(x + w - r, y);
+  c.quadraticCurveTo(x + w, y, x + w, y + r);
+  c.lineTo(x + w, y + h - r);
+  c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  c.lineTo(x + r, y + h);
+  c.quadraticCurveTo(x, y + h, x, y + h - r);
+  c.lineTo(x, y + r);
+  c.quadraticCurveTo(x, y, x + r, y);
+  c.closePath();
+}
+
+function download() {
+  const a = document.createElement('a');
+  a.download = 'feature-graphic.png';
+  a.href = c.toDataURL('image/png');
+  a.click();
+}
+
+draw();
+</script>
+</body>
+</html>
