@@ -1,6 +1,7 @@
 {
   "name": "やることリスト",
   "short_name": "やること",
+  "id": "/todo-app/todo.html",
   "description": "アイと一緒にタスクを管理するTodoアプリ",
   "start_url": "/todo-app/todo.html?v=2",
   "scope": "/todo-app/",
