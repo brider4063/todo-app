@@ -3408,7 +3408,7 @@ function getDayStats(dateStr, hist, allTasks) {
   const histEntries = hist[dateStr] ?? [];
   const histIds = new Set(histEntries.map(h => h.id));
   const extraDone = (allTasks[dateStr] ?? [])
-    .filter(t => t.done && !histIds.has(t.id))
+    .filter(t => t.done && t.credited && !histIds.has(t.id))
     .map(t => ({ pts: DIFF[t.diff || 'normal']?.pts ?? 0 }));
   const doneTasks = [...histEntries, ...extraDone];
   const pts = doneTasks.reduce((s, t) => s + (t.pts || 0), 0);
