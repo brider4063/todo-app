@@ -2163,9 +2163,9 @@ const TIME_GREETINGS = {
 function getTimeSlot() {
   const h = new Date().getHours();
   if (h >= 5  && h < 10) return 'morning';
-  if (h >= 10 && h < 17) return 'noon';
-  if (h >= 17 && h < 20) return 'afternoon';
-  if (h >= 20 && h < 23) return 'evening';
+  if (h >= 10 && h < 16) return 'noon';
+  if (h >= 16 && h < 19) return 'afternoon';
+  if (h >= 19 && h < 23) return 'evening';
   return 'night';
 }
 
