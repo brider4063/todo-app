@@ -1302,9 +1302,8 @@ function mergeDateMap(local, server, isHist = false) {
     const seen = new Set();
     const merged = [];
     for (const lt of l) {
-      // cal_history のローカルエントリは信頼する（ユーザー操作で明示的に追加）
-      // ai_tasks のみブラックリストでフィルタ
-      if (!isHist && deletedIds.has(lt.id)) continue;
+      // 削除済みIDはai_tasks・cal_history ともにフィルタ
+      if (deletedIds.has(lt.id)) continue;
       const st = serverMap.get(lt.id);
       if (st) {
         // 両方に存在 → stateUpdatedAt が新しいほうのdone/failed/creditedを採用（last write wins）
@@ -1478,8 +1477,12 @@ async function _mergeServerData(serverData) {
       const unionStr = JSON.stringify(union);
       if (unionStr !== (localRaw || '[]')) { localStorage.setItem(k, unionStr); changed = true; }
     } else if (k === 'ai_deleted_hist_ids') {
-      // cal_history 削除IDはローカル優先（再チェック後にサーバーが古いIDを復活させない）
-      if (!localRaw) { localStorage.setItem(k, v); changed = true; }
+      // cal_history 削除IDは union（両デバイスの削除を尊重）
+      const localArr  = JSON.parse(localRaw || '[]');
+      const serverArr = JSON.parse(v || '[]');
+      const union = [...new Set([...localArr, ...serverArr])];
+      const unionStr = JSON.stringify(union);
+      if (unionStr !== (localRaw || '[]')) { localStorage.setItem(k, unionStr); changed = true; }
     } else if (k === 'ai_templates' || k === 'ai_goals' || k === 'ai_repeats') {
       const deletedTmplIds = new Set(loadDeletedTmplIds());
       const localArr  = JSON.parse(localRaw || '[]').filter(x => !deletedTmplIds.has(x.id));
