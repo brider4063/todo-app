@@ -1325,8 +1325,13 @@ function mergeDateMap(local, server, isHist = false) {
       if (!seen.has(st.id) && !deletedIds.has(st.id)) merged.push(st);
     }
     if (isHist) {
-      // cal_history はID単位で管理。同名タスクを別日に複数回完了できるのでテキスト重複排除しない
-      result[date] = merged;
+      // cal_history はID単位で管理。IDで重複排除してから保存
+      const seenHistIds = new Set();
+      result[date] = merged.filter(h => {
+        if (seenHistIds.has(h.id)) return false;
+        seenHistIds.add(h.id);
+        return true;
+      });
     } else {
       // ai_tasks のみテキスト重複を排除（done/credited が true のものを優先）
       const byText = new Map();
@@ -1756,8 +1761,14 @@ function recalcAffectionSilent() {
   const hist = loadCalHistory();
   const allTasks = loadAllTasks();
   let total = 0;
-  for (const entries of Object.values(hist)) {
-    for (const t of entries) total += (t.pts || 0);
+  for (const [date, entries] of Object.entries(hist)) {
+    // IDで重複排除してから集計
+    const seen = new Set();
+    for (const t of entries) {
+      if (seen.has(t.id)) continue;
+      seen.add(t.id);
+      total += (t.pts || 0);
+    }
   }
   // cal_historyにない done+credited タスクも補完
   for (const [date, tasks] of Object.entries(allTasks)) {
@@ -3405,7 +3416,13 @@ function renderRepeatsList() {
 
 // cal_history + ai_tasks(done=true) を合算して日付のポイント・タスク数を返すユーティリティ
 function getDayStats(dateStr, hist, allTasks) {
-  const histEntries = hist[dateStr] ?? [];
+  // IDで重複排除してから集計
+  const seenIds = new Set();
+  const histEntries = (hist[dateStr] ?? []).filter(h => {
+    if (seenIds.has(h.id)) return false;
+    seenIds.add(h.id);
+    return true;
+  });
   const histIds = new Set(histEntries.map(h => h.id));
   const extraDone = (allTasks[dateStr] ?? [])
     .filter(t => t.done && t.credited && !histIds.has(t.id))
