@@ -736,7 +736,7 @@
     <!-- 検索セクション -->
     <div id="search-section">
       <div class="search-row">
-        <input type="text" class="search-inp" id="search-inp" placeholder="タスクを検索（全期間）..." oninput="doSearch(this.value)" />
+        <input type="text" class="search-inp" id="search-inp" placeholder="タスクを検索（全期間）..." oninput="if(!_searchComposing)doSearch(this.value)" oncompositionstart="_searchComposing=true" oncompositionend="_searchComposing=false;doSearch(this.value)" />
         <button class="search-close-btn" onclick="closeSearch()">閉じる</button>
       </div>
       <div class="search-result-list" id="search-result-list"></div>
@@ -3665,6 +3665,7 @@ function setTagFilter(tag) {
 // ===== F9: 全文検索 =====
 // ===================================================================
 let _searchActive=false;
+let _searchComposing=false;
 
 function toggleSearch() {
   _searchActive=!_searchActive;
